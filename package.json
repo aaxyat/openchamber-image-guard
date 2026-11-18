@@ -1,9 +1,9 @@
 {
   "name": "openchamber-image-guard",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "license": "MIT",
-  "description": "Caps image parts per model request for providers with a low image limit, such as Mistral's deepseek-v4-1-flash-1017 (20 images).",
+  "description": "Caps image parts per model request for providers with a low image limit, with a settings panel for per-model limits.",
   "openchamber": {
     "apiVersion": 1,
     "engines": {
@@ -19,7 +19,16 @@
         "icon": "image",
         "entry": "panel/index.html"
       },
-      "opencodePlugin": "plugin"
+      "opencodePlugin": "plugin",
+      "filesystem": [
+        "~/.config/opencode/image-guard.json"
+      ]
     }
+  },
+  "scripts": {
+    "build": "bunx openchamber-guest-bundle src/panel/main.ts panel/main.js"
+  },
+  "devDependencies": {
+    "@openchamber/sdk": "^2.3.3"
   }
 }

@@ -31,16 +31,38 @@ Only the outgoing request is changed. Stored history is not modified, so session
 
 In OpenChamber: **Settings → Extensions → Add**, paste this repository's Git URL, approve the capability dialog (it lists *Add a plugin to OpenCode*), and enable **Image Guard**.
 
-The panel on the rail explains the current settings. The extension has no service, no network access and no filesystem access.
+The panel on the rail is the settings editor: add a model, change its limit, remove it, save. The extension has no service and no network access; its only filesystem access is the settings file it declares.
 
 ## Configuration
 
-The plugin reads two environment variables on the **OpenCode server** at load time:
+The panel edits one file, which the bundled plugin reads on every request and re-reads when its mtime changes:
 
-| Variable | Default | Meaning |
-| --- | --- | --- |
-| `OPENCODE_MAX_IMAGES` | `15` | Maximum image parts per request. Keep it below the provider's limit. |
-| `IMAGE_GUARD_MODELS` | `mistral/deepseek-v4-1-flash-1017` | Comma-separated `provider/model` list the guard applies to. |
+```
+~/.config/opencode/image-guard.json
+```
+
+```json
+{
+  "version": 1,
+  "models": {
+    "mistral/deepseek-v4-1-flash-1017": 15,
+    "mistral/*": 8
+  }
+}
+```
+
+Add, change, or remove a model in the panel, then **Save**. The running plugin picks it up on the next request — no OpenCode restart. Resolution order: exact `provider/model`, then `provider/*`, then `*`; a model with no match is not guarded.
+
+The same file can be edited from a terminal with the standalone repo's CLI:
+
+```bash
+node bin/image-guard.mjs set mistral/deepseek-v4-1-flash-1017 15
+node bin/image-guard.mjs list
+```
+
+The extension declares `filesystem` access to that one file in its manifest; it reads and writes nothing else.
+
+Environment variables are still honored **only when the file does not exist** (`OPENCODE_MAX_IMAGES`, `IMAGE_GUARD_MODELS`).
 
 ## Log
 
@@ -60,9 +82,10 @@ OpenCode `2.3.0`, model `mistral/deepseek-v4-1-flash-1017`:
 
 | Scenario | Images in request | Dropped | Result |
 | --- | --- | --- | --- |
-| 21 file attachments | 21 | 6 | request accepted (without the guard: HTTP 400 / code 3051) |
+| 21 file attachments, limit 15 | 21 | 6 | request accepted (without the guard: HTTP 400 / code 3051) |
 | 16 PNGs read via the `read` tool | 16 | 1 | request accepted |
-| ≤ 15 images | ≤ 15 | 0 | untouched |
+| limit changed to 12 from the CLI, next request | 21 | 9 | accepted with no restart |
+| ≤ limit | ≤ limit | 0 | untouched |
 
 ## Compatibility
 

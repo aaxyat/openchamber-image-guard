@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Image Guard</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+      }
+      body {
+        padding: 14px;
+        box-sizing: border-box;
+        background: var(--oc-bg);
+        color: var(--oc-fg);
+        font-family: var(--oc-font);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+      h1 {
+        margin: 0 0 2px;
+        font-size: 15px;
+        font-weight: 600;
+      }
+      .sub {
+        margin: 0 0 14px;
+        color: var(--oc-fg-muted, var(--oc-fg));
+        opacity: 0.7;
+      }
+      .card {
+        border: 1px solid var(--oc-border);
+        border-radius: 8px;
+        padding: 10px 12px;
+        margin-bottom: 10px;
+        background: var(--oc-bg-subtle, transparent);
+      }
+      .row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 3px 0;
+      }
+      .row + .row {
+        border-top: 1px solid var(--oc-border);
+      }
+      .k {
+        opacity: 0.65;
+      }
+      .v {
+        text-align: right;
+        font-family: var(--oc-font-mono, ui-monospace, monospace);
+        font-size: 12px;
+        word-break: break-word;
+      }
+      .ok {
+        color: var(--oc-success, #3fb950);
+      }
+      h2 {
+        margin: 0 0 6px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        opacity: 0.6;
+      }
+      ul {
+        margin: 0;
+        padding-left: 18px;
+      }
+      li + li {
+        margin-top: 3px;
+      }
+      code {
+        font-family: var(--oc-font-mono, ui-monospace, monospace);
+        font-size: 12px;
+        background: var(--oc-bg-subtle, rgba(127, 127, 127, 0.12));
+        padding: 1px 4px;
+        border-radius: 4px;
+      }
+      .muted {
+        opacity: 0.65;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Image Guard</h1>
+    <p class="sub">Keeps every model request under the provider's image limit before it is sent.</p>
+
+    <div class="card">
+      <div class="row"><span class="k">Status</span><span class="v ok">active</span></div>
+      <div class="row"><span class="k">Model</span><span class="v">mistral/deepseek-v4-1-flash-1017</span></div>
+      <div class="row"><span class="k">Keeps newest</span><span class="v">15 images</span></div>
+      <div class="row"><span class="k">Log</span><span class="v">~/.local/share/opencode/log/image-guard.log</span></div>
+    </div>
+
+    <div class="card">
+      <h2>What it does</h2>
+      <ul>
+        <li>Counts image parts across the whole request, including screenshots returned by tools.</li>
+        <li>Keeps the newest 15 and replaces older ones with a short text placeholder naming the file.</li>
+        <li>Changes only the outgoing request. Stored history, search and memory are untouched.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Configure</h2>
+      <div class="row"><span class="k"><code>OPENCODE_MAX_IMAGES</code></span><span class="v">15</span></div>
+      <div class="row"><span class="k"><code>IMAGE_GUARD_MODELS</code></span><span class="v">comma-separated provider/model</span></div>
+      <p class="muted" style="margin: 8px 0 0">
+        Set these on the OpenCode server's environment, then reload the plugin. The default is tuned for
+        Mistral's 20-image limit; keep the cap below it.
+      </p>
+    </div>
+
+    <p class="muted" style="margin: 0">
+      Works alongside context-management plugins such as Magic Context. Removing or disabling this extension
+      removes the OpenCode plugin with it.
+    </p>
+  </body>
+</html>
